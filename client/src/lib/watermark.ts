@@ -207,7 +207,6 @@ export async function applyWatermark(
 
   // Pre-calculate location line count to adjust layout
   ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
-
   const locationLineCount = countWrappedLines(
     ctx,
     watermarkData.location,
@@ -276,8 +275,8 @@ export async function applyWatermark(
   ctx.fillStyle = "white";
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 8 * scaleFactor;
-  ctx.shadowOffsetX = 3 * scaleFactor;
-  ctx.shadowOffsetY = 3 * scaleFactor;
+  ctx.shadowOffsetX = 0 * scaleFactor;
+  ctx.shadowOffsetY = 0 * scaleFactor;
 
   ctx.font = `${dateFontSize}px 'Roboto', sans-serif`;
   drawCondensedText(ctx, dateText, rightX, dividerY + dateFontSize / 2, 0.85);
@@ -320,7 +319,12 @@ export async function applyWatermark(
 
   const brandY: number = image.height - padding - subTextFontSize - 8 * scaleFactor;
   const brandStartX: number = image.width - padding - totalBrandWidth;
-
+  
+  ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+  ctx.shadowBlur = 6 * scaleFactor;
+  ctx.shadowOffsetX = 0 * scaleFactor;
+  ctx.shadowOffsetY = 0 * scaleFactor;
+  
   ctx.textAlign = "left";
   ctx.fillStyle = "#ffc02d";
   ctx.fillText(timeText, brandStartX, brandY);
@@ -328,7 +332,7 @@ export async function applyWatermark(
   ctx.fillStyle = "white";
   ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
 
-  ctx.font = `100 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
+  ctx.font = `100 ${subTextFontSize}px 'Roboto', sans-serif`;
   const subText: string = "100% Chân thực";
   const subTextWidth: number = ctx.measureText(subText).width;
 
