@@ -221,9 +221,9 @@ export async function applyWatermark(
   
   ctx.shadowColor = "transparent";
   
-  // Bottom right Timemark branding
-const brandFontSize: number = Math.round(30 * scaleFactor);
-const subTextFontSize: number = Math.round(20 * scaleFactor);
+// Bottom right Timemark branding
+const brandFontSize: number = 30;
+const subTextFontSize: number = 20;
 ctx.font = `500 ${brandFontSize}px 'RobotoMedium', sans-serif`;
 
 const timeText: string = "Time";
@@ -232,7 +232,7 @@ const timeTextWidth: number = ctx.measureText(timeText).width;
 const markTextWidth: number = ctx.measureText(markText).width;
 const totalBrandWidth: number = timeTextWidth + markTextWidth;
 
-const brandY: number = image.height - padding - subTextFontSize - 8 * scaleFactor;
+const brandY: number = image.height - padding - subTextFontSize - 8;
 const brandStartX: number = image.width - padding - totalBrandWidth;
 
 // Draw "Time" in orange
