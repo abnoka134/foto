@@ -208,13 +208,6 @@ export async function applyWatermark(
   // Pre-calculate location line count to adjust layout
   ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
 
-const locationLineCount = countWrappedLines(
-  ctx,
-  watermarkData.location,
-  0.85,
-  maxLocationWidth,
-);
-console.log("locationLineCount:", locationLineCount);
   const locationLineCount = countWrappedLines(
     ctx,
     watermarkData.location,
