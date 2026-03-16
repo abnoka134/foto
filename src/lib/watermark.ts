@@ -12,18 +12,8 @@ interface WatermarkOptions {
 
 function getMonthName(monthIndex: number): string {
   const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
   return months[monthIndex];
 }
@@ -101,7 +91,6 @@ export async function applyWatermark(
 ): Promise<string> {
   const { watermarkData, quality = 0.92 } = options;
 
-  // Ensure fonts are loaded
   try {
     await document.fonts.load('700 1em "Big Shoulders Display"');
   } catch {
@@ -109,7 +98,6 @@ export async function applyWatermark(
   }
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  // Load logo image
   let logoImg: HTMLImageElement | null = null;
   try {
     logoImg = await new Promise((resolve, reject) => {
@@ -132,13 +120,91 @@ export async function applyWatermark(
 
   const baseSize = Math.min(image.width, image.height);
   const scaleFactor = baseSize / 1000;
-
   const padding = 40 * scaleFactor;
+
+  function drawWrappedCondensedText(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    scaleX: number,
+    maxWidth: number,
+    lineHeight: number,
+  ): number {
+    const words = text.split(" ");
+    const lines: string[] = [];
+    let currentLine = "";
+
+    ctx.save();
+    ctx.scale(scaleX, 1);
+    const scaledMaxWidth = maxWidth / scaleX;
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = ctx.measureText(testLine).width;
+      if (testWidth > scaledMaxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], x / scaleX, y + i * lineHeight);
+    }
+    ctx.restore();
+
+    return lines.length * lineHeight;
+  }
+
+  function countWrappedLines(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    scaleX: number,
+    maxWidth: number,
+  ): number {
+    const words = text.split(" ");
+    const lines: string[] = [];
+    let currentLine = "";
+
+    ctx.save();
+    ctx.scale(scaleX, 1);
+    const scaledMaxWidth = maxWidth / scaleX;
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = ctx.measureText(testLine).width;
+      if (testWidth > scaledMaxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    ctx.restore();
+    return lines.length;
+  }
 
   const timeFontSize = Math.round(130 * scaleFactor);
   const dateFontSize = Math.round(40 * scaleFactor);
   const dayFontSize = Math.round(40 * scaleFactor);
   const locationFontSize = Math.round(40 * scaleFactor);
+  const locationLineHeight = locationFontSize * 1.2;
+  const maxLocationWidth = image.width * 0.64;
+
+  // Pre-calculate location line count to adjust layout
+  ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
+  const locationLineCount = countWrappedLines(
+    ctx,
+    watermarkData.location,
+    0.85,
+    maxLocationWidth,
+  );
+  const extraLocationHeight = (locationLineCount - 1) * locationLineHeight;
 
   ctx.font = `700 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
   const timeWidth = ctx.measureText(watermarkData.time).width;
@@ -150,13 +216,9 @@ export async function applyWatermark(
   ctx.font = `${dayFontSize}px 'Roboto', sans-serif`;
   const dayWidth = ctx.measureText(watermarkData.day).width * 0.85;
 
-  ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
-  const locationWidth = ctx.measureText(watermarkData.location).width * 0.85;
-
   const dividerWidth = 5 * scaleFactor;
   const dividerMargin = 20 * scaleFactor;
   const rightSideWidth = Math.max(dateWidth, dayWidth);
-
   const boxWidth =
     timeWidth +
     dividerMargin +
@@ -164,23 +226,29 @@ export async function applyWatermark(
     dividerMargin +
     rightSideWidth +
     padding * 2;
-  const boxHeight = timeFontSize + locationFontSize + 30 * scaleFactor;
+  const boxHeight = timeFontSize + locationFontSize + extraLocationHeight + 30 * scaleFactor;
 
   const boxX = padding;
+  // Shift entire box up by extra lines beyond the first
   const boxY =
-    image.height - padding - timeFontSize - locationFontSize + 10 * scaleFactor;
+    image.height -
+    padding -
+    timeFontSize -
+    locationFontSize +
+    20 * scaleFactor -
+    extraLocationHeight;
 
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
 
   const timeX = boxX;
-  const timeY = boxY + timeFontSize / 2;
+  const timeY = boxY + timeFontSize / 2 - scaleFactor * 10;
 
   ctx.font = `700 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 5 * scaleFactor;
-  ctx.shadowOffsetX = 0 * scaleFactor;
-  ctx.shadowOffsetY = 0 * scaleFactor;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
   ctx.strokeStyle = "black";
   ctx.lineWidth = 2 * scaleFactor;
   ctx.strokeText(watermarkData.time, timeX, timeY);
@@ -191,21 +259,19 @@ export async function applyWatermark(
   const dividerX = timeX + timeWidth + dividerMargin;
   const dividerHeight = timeFontSize * 0.85;
   const dividerY = timeY - dividerHeight / 2 - 6 * scaleFactor;
-
   ctx.fillStyle = "#fdc630";
   ctx.fillRect(dividerX, dividerY, dividerWidth, dividerHeight);
 
   const rightX = dividerX + dividerWidth + dividerMargin;
-
   ctx.fillStyle = "white";
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 8 * scaleFactor;
   ctx.shadowOffsetX = 3 * scaleFactor;
   ctx.shadowOffsetY = 3 * scaleFactor;
-  
+
   ctx.font = `${dateFontSize}px 'Roboto', sans-serif`;
   drawCondensedText(ctx, dateText, rightX, dividerY + dateFontSize / 2, 0.85);
-  
+
   ctx.font = `${dayFontSize}px 'Roboto', sans-serif`;
   drawCondensedText(
     ctx,
@@ -215,51 +281,56 @@ export async function applyWatermark(
     0.85,
   );
 
-  const locationY = image.height - padding - Math.round(20 * scaleFactor) + 10 * scaleFactor;
+  // Location — anchored just below the time/date block
+  const locationY = boxY + timeFontSize + 10 * scaleFactor;
+
   ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
-  drawCondensedText(ctx, watermarkData.location, boxX + 10 * scaleFactor, locationY, 0.85);
-  
+  drawWrappedCondensedText(
+    ctx,
+    watermarkData.location,
+    boxX + 10 * scaleFactor,
+    locationY,
+    0.85,
+    maxLocationWidth,
+    locationLineHeight,
+  );
+
   ctx.shadowColor = "transparent";
-  
-// Bottom right Timemark branding
-const brandFontSize: number = 30;
-const subTextFontSize: number = 20;
-ctx.font = `500 ${brandFontSize}px 'RobotoMedium', sans-serif`;
 
-const timeText: string = "Time";
-const markText: string = "mark";
-const timeTextWidth: number = ctx.measureText(timeText).width;
-const markTextWidth: number = ctx.measureText(markText).width;
-const totalBrandWidth: number = timeTextWidth + markTextWidth;
+  // Bottom right Timemark branding
+  const brandFontSize: number = 30;
+  const subTextFontSize: number = 20;
+  ctx.font = `500 ${brandFontSize}px 'RobotoMedium', sans-serif`;
 
-const brandY: number = image.height - padding - subTextFontSize - 8;
-const brandStartX: number = image.width - padding - totalBrandWidth;
+  const timeText: string = "Time";
+  const markText: string = "mark";
+  const timeTextWidth: number = ctx.measureText(timeText).width;
+  const markTextWidth: number = ctx.measureText(markText).width;
+  const totalBrandWidth: number = timeTextWidth + markTextWidth;
 
-// Draw "Time" in orange
-ctx.textAlign = "left";
-ctx.fillStyle = "#ffc02d";
-ctx.fillText(timeText, brandStartX, brandY);
+  const brandY: number = image.height - padding - subTextFontSize - 8;
+  const brandStartX: number = image.width - padding - totalBrandWidth;
 
-// Draw "mark" in white
-ctx.fillStyle = "white";
-ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#ffc02d";
+  ctx.fillText(timeText, brandStartX, brandY);
 
-// Measure subtext at its font size
-ctx.font = `100 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
-const subText: string = "100% Chân thực";
-const subTextWidth: number = ctx.measureText(subText).width;
+  ctx.fillStyle = "white";
+  ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
 
-// Distribute extra space evenly as letter-spacing
-const extraSpace: number = totalBrandWidth - subTextWidth;
-const letterSpacing: number = extraSpace / (subText.length - 1);
+  ctx.font = `100 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
+  const subText: string = "100% Chân thực";
+  const subTextWidth: number = ctx.measureText(subText).width;
 
-// Draw subtext character by character
-ctx.fillStyle = "white";
-let currentX: number = brandStartX;
-for (const char of subText) {
-  ctx.fillText(char, currentX, brandY + brandFontSize);
-  currentX += ctx.measureText(char).width + letterSpacing;
-}
+  const extraSpace: number = totalBrandWidth - subTextWidth;
+  const letterSpacing: number = extraSpace / (subText.length - 1);
+
+  ctx.fillStyle = "white";
+  let currentX: number = brandStartX;
+  for (const char of subText) {
+    ctx.fillText(char, currentX, brandY + brandFontSize);
+    currentX += ctx.measureText(char).width + letterSpacing;
+  }
 
   ctx.shadowColor = "transparent";
 
@@ -298,13 +369,8 @@ export async function downloadAllAsZip(
 
 export function getDayName(dayIndex: number): string {
   const days = [
-    "Chủ nhật",
-    "Thứ Hai",
-    "Thứ Ba",
-    "Thứ Tư",
-    "Thứ Năm",
-    "Thứ Sáu",
-    "Thứ Bảy",
+    "Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư",
+    "Thứ Năm", "Thứ Sáu", "Thứ Bảy",
   ];
   return days[dayIndex];
 }
