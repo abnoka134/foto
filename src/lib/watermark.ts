@@ -91,13 +91,6 @@ export async function applyWatermark(
 ): Promise<string> {
   const { watermarkData, quality = 0.92 } = options;
 
-  try {
-    await document.fonts.load('700 1em "Big Shoulders Display"');
-  } catch {
-    // Font loading failed, will use fallback
-  }
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   let logoImg: HTMLImageElement | null = null;
   try {
     logoImg = await new Promise((resolve, reject) => {
@@ -115,12 +108,30 @@ export async function applyWatermark(
 
   canvas.width = image.width;
   canvas.height = image.height;
-
   ctx.drawImage(image, 0, 0);
 
   const baseSize = Math.min(image.width, image.height);
   const scaleFactor = baseSize / 1000;
   const padding = 40 * scaleFactor;
+
+  const timeFontSize = Math.round(130 * scaleFactor);
+  const dateFontSize = Math.round(40 * scaleFactor);
+  const dayFontSize = Math.round(40 * scaleFactor);
+  const locationFontSize = Math.round(40 * scaleFactor);
+
+  // Wait for fonts at correct sizes before any measureText calls
+  try {
+    await Promise.all([
+      document.fonts.load(`700 ${timeFontSize}px "Big Shoulders Display"`),
+      document.fonts.load(`${dateFontSize}px "Roboto"`),
+      document.fonts.load(`500 30px "RobotoMedium"`),
+      document.fonts.load(`100 20px "Roboto Condensed"`),
+    ]);
+    await document.fonts.ready;
+  } catch {
+    // Font loading failed, will use fallback
+  }
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   function drawWrappedCondensedText(
     ctx: CanvasRenderingContext2D,
@@ -189,12 +200,8 @@ export async function applyWatermark(
     return lines.length;
   }
 
-  const timeFontSize = Math.round(130 * scaleFactor);
-  const dateFontSize = Math.round(40 * scaleFactor);
-  const dayFontSize = Math.round(40 * scaleFactor);
-  const locationFontSize = Math.round(40 * scaleFactor);
   const locationLineHeight = locationFontSize * 1.2;
-  const maxLocationWidth = image.width * 0.64;
+  const maxLocationWidth = image.width * 0.7;
 
   // Pre-calculate location line count to adjust layout
   ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
@@ -226,23 +233,23 @@ export async function applyWatermark(
     dividerMargin +
     rightSideWidth +
     padding * 2;
-  const boxHeight = timeFontSize + locationFontSize + extraLocationHeight + 30 * scaleFactor;
+  const boxHeight =
+    timeFontSize + locationFontSize + extraLocationHeight + 30 * scaleFactor;
 
   const boxX = padding;
-  // Shift entire box up by extra lines beyond the first
   const boxY =
     image.height -
     padding -
     timeFontSize -
     locationFontSize +
-    20 * scaleFactor -
+    10 * scaleFactor -
     extraLocationHeight;
 
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
 
   const timeX = boxX;
-  const timeY = boxY + timeFontSize / 2 - scaleFactor * 10;
+  const timeY = boxY + timeFontSize / 2 - 10 * scaleFactor;
 
   ctx.font = `700 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
@@ -282,7 +289,7 @@ export async function applyWatermark(
   );
 
   // Location — anchored just below the time/date block
-  const locationY = boxY + timeFontSize + 10 * scaleFactor;
+  const locationY = boxY + timeFontSize + 16 * scaleFactor;
 
   ctx.font = `${locationFontSize}px 'Roboto', sans-serif`;
   drawWrappedCondensedText(
