@@ -147,6 +147,7 @@ export async function applyWatermark(
     let currentLine = "";
 
     ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset any existing transform
     ctx.scale(scaleX, 1);
     const scaledMaxWidth = maxWidth / scaleX;
 
@@ -181,6 +182,7 @@ export async function applyWatermark(
     let currentLine = "";
 
     ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset any existing transform
     ctx.scale(scaleX, 1);
     const scaledMaxWidth = maxWidth / scaleX;
 
