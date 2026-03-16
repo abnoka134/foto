@@ -308,8 +308,8 @@ export async function applyWatermark(
   ctx.shadowColor = "transparent";
 
   // Bottom right Timemark branding
-  const brandFontSize: number = 30;
-  const subTextFontSize: number = 20;
+  const brandFontSize: number = Math.round(30 * scaleFactor);
+  const subTextFontSize: number = Math.round(20 * scaleFactor);
   ctx.font = `500 ${brandFontSize}px 'RobotoMedium', sans-serif`;
 
   const timeText: string = "Time";
@@ -318,7 +318,7 @@ export async function applyWatermark(
   const markTextWidth: number = ctx.measureText(markText).width;
   const totalBrandWidth: number = timeTextWidth + markTextWidth;
 
-  const brandY: number = image.height - padding - subTextFontSize - 8;
+  const brandY: number = image.height - padding - subTextFontSize - 8 * scaleFactor;
   const brandStartX: number = image.width - padding - totalBrandWidth;
 
   ctx.textAlign = "left";
