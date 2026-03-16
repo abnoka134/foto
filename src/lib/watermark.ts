@@ -89,6 +89,7 @@ export async function applyWatermark(
   isLandscape: boolean,
   options: WatermarkOptions,
 ): Promise<string> {
+  console.log("applyWatermark called"); // add this
   const { watermarkData, quality = 0.92 } = options;
 
   let logoImg: HTMLImageElement | null = null;
