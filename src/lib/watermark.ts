@@ -222,38 +222,44 @@ export async function applyWatermark(
   ctx.shadowColor = "transparent";
   
   // Bottom right Timemark branding
-  const brandFontSize = Math.round(30 * scaleFactor);
-  const subTextFontSize = Math.round(20 * scaleFactor);
+const brandFontSize: number = Math.round(30 * scaleFactor);
+const subTextFontSize: number = Math.round(20 * scaleFactor);
+ctx.font = `500 ${brandFontSize}px 'RobotoMedium', sans-serif`;
 
-  ctx.font = `500 ${brandFontSize}px 'RobotoMedium', sans-serif`;
-  const timeText = "Time";
-  const markText = "mark";
-  const timeTextWidth = ctx.measureText(timeText).width;
-  const markTextWidth = ctx.measureText(markText).width;
+const timeText: string = "Time";
+const markText: string = "mark";
+const timeTextWidth: number = ctx.measureText(timeText).width;
+const markTextWidth: number = ctx.measureText(markText).width;
+const totalBrandWidth: number = timeTextWidth + markTextWidth;
 
-  const brandY = image.height - padding - subTextFontSize - 8 * scaleFactor;
-  const brandStartX = image.width - padding - timeTextWidth - markTextWidth;
+const brandY: number = image.height - padding - subTextFontSize - 8 * scaleFactor;
+const brandStartX: number = image.width - padding - totalBrandWidth;
 
-  // Draw "Time" in orange
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#ffc02d";
-  ctx.fillText(timeText, brandStartX, brandY);
+// Draw "Time" in orange
+ctx.textAlign = "left";
+ctx.fillStyle = "#ffc02d";
+ctx.fillText(timeText, brandStartX, brandY);
 
-  // Draw "mark" in white
-  ctx.fillStyle = "white";
-  ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
+// Draw "mark" in white
+ctx.fillStyle = "white";
+ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
 
-  // Draw 100% Chân thực below
-  ctx.font = `100 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
-  ctx.textAlign = "right";
-  ctx.fillStyle = "white";
-  drawCondensedText(
-    ctx,
-    "100% Chân thực",
-    image.width - padding,
-    brandY + brandFontSize,
-    1.15,
-  );
+// Measure subtext at its font size
+ctx.font = `100 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
+const subText: string = "100% Chân thực";
+const subTextWidth: number = ctx.measureText(subText).width;
+
+// Distribute extra space evenly as letter-spacing
+const extraSpace: number = totalBrandWidth - subTextWidth;
+const letterSpacing: number = extraSpace / (subText.length - 1);
+
+// Draw subtext character by character
+ctx.fillStyle = "white";
+let currentX: number = brandStartX;
+for (const char of subText) {
+  ctx.fillText(char, currentX, brandY + brandFontSize);
+  currentX += ctx.measureText(char).width + letterSpacing;
+}
 
   ctx.shadowColor = "transparent";
 
