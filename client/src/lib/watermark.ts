@@ -114,7 +114,7 @@ export async function applyWatermark(
   const scaleFactor = baseSize / 1000;
   const padding = 40 * scaleFactor;
 
-  const timeFontSize = Math.round(130 * scaleFactor);
+  const timeFontSize = Math.round(124 * scaleFactor);
   const dateFontSize = Math.round(40 * scaleFactor);
   const dayFontSize = Math.round(40 * scaleFactor);
   const locationFontSize = Math.round(40 * scaleFactor);
