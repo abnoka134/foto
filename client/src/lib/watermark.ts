@@ -123,7 +123,7 @@ export async function applyWatermark(
   try {
     await Promise.all([
       document.fonts.load(`700 ${timeFontSize}px "Big Shoulders Display"`),
-      document.fonts.load(`${dateFontSize}px "Roboto"`),
+      document.fonts.load(`100 ${dateFontSize}px "Roboto Condensed"`),
       document.fonts.load(`500 30px "RobotoMedium"`),
       document.fonts.load(`100 20px "Roboto Condensed"`),
     ]);
@@ -218,11 +218,11 @@ export async function applyWatermark(
   ctx.font = `700 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
   const timeWidth = ctx.measureText(watermarkData.time).width;
 
-  ctx.font = `${dateFontSize}px 'Roboto', sans-serif`;
+  ctx.font = `100 ${dateFontSize}px 'Roboto Condensed', sans-serif`;
   const dateText = watermarkData.date;
   const dateWidth = ctx.measureText(dateText).width * 0.85;
 
-  ctx.font = `${dayFontSize}px 'Roboto', sans-serif`;
+  ctx.font = `100 ${dayFontSize}px 'Roboto Condensed', sans-serif`;
   const dayWidth = ctx.measureText(watermarkData.day).width * 0.85;
 
   const dividerWidth = 5 * scaleFactor;
@@ -278,10 +278,10 @@ export async function applyWatermark(
   ctx.shadowOffsetX = 0 * scaleFactor;
   ctx.shadowOffsetY = 0 * scaleFactor;
 
-  ctx.font = `${dateFontSize}px 'Roboto', sans-serif`;
+  ctx.font = `100 ${dateFontSize}px 'Roboto Condensed', sans-serif`;
   drawCondensedText(ctx, dateText, rightX, dividerY + dateFontSize / 2, 0.85);
 
-  ctx.font = `${dayFontSize}px 'Roboto', sans-serif`;
+  ctx.font = `100 ${dayFontSize}px 'Roboto Condensed', sans-serif`;
   drawCondensedText(
     ctx,
     watermarkData.day,
