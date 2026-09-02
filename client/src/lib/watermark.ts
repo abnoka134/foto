@@ -1,7 +1,7 @@
 import Pica from "pica";
 import JSZip from "jszip";
 import type { WatermarkData } from "@/components/WatermarkForm";
-import logoPath from "@assets/logo_1764528864504.png";
+import logoPath from "@assets/logo.jpg";
 
 const pica = new Pica();
 
