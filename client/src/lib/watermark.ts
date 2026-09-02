@@ -124,7 +124,7 @@ export async function applyWatermark(
       document.fonts.load(`500 ${timeFontSize}px "Big Shoulders Display"`),
       document.fonts.load(`${dateFontSize}px "Roboto"`),
       document.fonts.load(`500 30px "RobotoMedium"`),
-      document.fonts.load(`300 20px "Roboto Condensed"`),
+      document.fonts.load(`400 20px "Roboto Condensed"`),
     ]);
     await document.fonts.ready;
   } catch {
@@ -252,8 +252,19 @@ export async function applyWatermark(
 
     const logoX = boxX;
     const logoY = boxY - logoTargetHeight - (50 * scaleFactor);
+    
+    // Độ bo cong của góc
+    const borderRadius = 15 * scaleFactor;
 
+    ctx.save();
+    
+    roundRect(ctx, logoX, logoY, logoTargetWidth, logoTargetHeight, borderRadius);
+    
+    ctx.clip(); 
+    
     ctx.drawImage(logoImg, logoX, logoY, logoTargetWidth, logoTargetHeight);
+    
+    ctx.restore();
   }
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
@@ -340,7 +351,7 @@ export async function applyWatermark(
   ctx.fillStyle = "white";
   ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
 
-  ctx.font = `300 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
+  ctx.font = `400 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
   const subText: string = "100% Chân thực";
   const subTextWidth: number = ctx.measureText(subText).width;
 
