@@ -119,10 +119,9 @@ export async function applyWatermark(
   const dayFontSize = Math.round(40 * scaleFactor);
   const locationFontSize = Math.round(40 * scaleFactor);
 
-  // Wait for fonts at correct sizes before any measureText calls
   try {
     await Promise.all([
-      document.fonts.load(`700 ${timeFontSize}px "Big Shoulders Display"`),
+      document.fonts.load(`400 ${timeFontSize}px "Big Shoulders Display"`),
       document.fonts.load(`${dateFontSize}px "Roboto"`),
       document.fonts.load(`500 30px "RobotoMedium"`),
       document.fonts.load(`100 20px "Roboto Condensed"`),
@@ -215,7 +214,7 @@ export async function applyWatermark(
   );
   const extraLocationHeight = (locationLineCount - 1) * locationLineHeight;
 
-  ctx.font = `700 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
+  ctx.font = `400 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
   const timeWidth = ctx.measureText(watermarkData.time).width;
 
   ctx.font = `${dateFontSize}px 'Roboto', sans-serif`;
@@ -247,19 +246,28 @@ export async function applyWatermark(
     10 * scaleFactor -
     extraLocationHeight;
 
+  if (logoImg) {
+    const logoTargetHeight = timeFontSize * 1.2; 
+    const logoTargetWidth = (logoImg.width / logoImg.height) * logoTargetHeight;
+
+    const logoX = boxX;
+    const logoY = boxY - logoTargetHeight - (50 * scaleFactor);
+
+    ctx.drawImage(logoImg, logoX, logoY, logoTargetWidth, logoTargetHeight);
+  }
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
 
   const timeX = boxX;
   const timeY = boxY + timeFontSize / 2 - 10 * scaleFactor;
 
-  ctx.font = `700 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
+  ctx.font = `400 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 5 * scaleFactor;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.strokeStyle = "black";
-  ctx.lineWidth = 2 * scaleFactor;
+  ctx.lineWidth = 1 * scaleFactor;
   ctx.strokeText(watermarkData.time, timeX, timeY);
   ctx.fillStyle = "white";
   ctx.fillText(watermarkData.time, timeX, timeY);
@@ -319,12 +327,12 @@ export async function applyWatermark(
 
   const brandY: number = image.height - padding - subTextFontSize - 8 * scaleFactor;
   const brandStartX: number = image.width - padding - totalBrandWidth;
-  
+
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 6 * scaleFactor;
   ctx.shadowOffsetX = 0 * scaleFactor;
   ctx.shadowOffsetY = 0 * scaleFactor;
-  
+
   ctx.textAlign = "left";
   ctx.fillStyle = "#ffc02d";
   ctx.fillText(timeText, brandStartX, brandY);
@@ -332,7 +340,7 @@ export async function applyWatermark(
   ctx.fillStyle = "white";
   ctx.fillText(markText, brandStartX + timeTextWidth, brandY);
 
-  ctx.font = `100 ${subTextFontSize}px 'Roboto', sans-serif`;
+  ctx.font = `100 ${subTextFontSize}px 'Roboto Condensed', sans-serif`;
   const subText: string = "100% Chân thực";
   const subTextWidth: number = ctx.measureText(subText).width;
 
