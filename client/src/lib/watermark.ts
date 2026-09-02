@@ -251,7 +251,7 @@ export async function applyWatermark(
     const logoTargetWidth = (logoImg.width / logoImg.height) * logoTargetHeight;
 
     const logoX = boxX;
-    const logoY = boxY - logoTargetHeight - (50 * scaleFactor);
+    const logoY = boxY - logoTargetHeight - (30 * scaleFactor);
 
     // Độ bo cong của góc
     const borderRadius = 15 * scaleFactor;
@@ -282,6 +282,9 @@ export async function applyWatermark(
   ctx.strokeText(watermarkData.time, timeX, timeY);
   ctx.fillStyle = "white";
   ctx.fillText(watermarkData.time, timeX, timeY);
+  ctx.strokeStyle = "white"; 
+  ctx.lineWidth = 0.4 * scaleFactor;
+  ctx.strokeText(watermarkData.time, timeX, timeY);
   ctx.shadowColor = "transparent";
 
   const dividerX = timeX + timeWidth + dividerMargin;
