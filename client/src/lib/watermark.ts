@@ -278,7 +278,7 @@ export async function applyWatermark(
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.strokeStyle = "black";
-  ctx.lineWidth = 1 * scaleFactor;
+  ctx.lineWidth = 0.1 * scaleFactor;
   ctx.strokeText(watermarkData.time, timeX, timeY);
   ctx.fillStyle = "white";
   ctx.fillText(watermarkData.time, timeX, timeY);
