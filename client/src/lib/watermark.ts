@@ -273,19 +273,24 @@ export async function applyWatermark(
   const timeY = boxY + timeFontSize / 2 - 10 * scaleFactor;
 
   ctx.font = `500 ${timeFontSize}px 'Big Shoulders Display', sans-serif`;
+
   ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 5 * scaleFactor;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-  //ctx.strokeStyle = "black";
-  //ctx.lineWidth = 0.1 * scaleFactor;
+
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 1.4 * scaleFactor; 
   ctx.strokeText(watermarkData.time, timeX, timeY);
+
+  ctx.shadowColor = "transparent";
+
   ctx.fillStyle = "white";
   ctx.fillText(watermarkData.time, timeX, timeY);
+
   ctx.strokeStyle = "white"; 
   ctx.lineWidth = 1 * scaleFactor;
   ctx.strokeText(watermarkData.time, timeX, timeY);
-  ctx.shadowColor = "transparent";
 
   const dividerX = timeX + timeWidth + dividerMargin;
   const dividerHeight = timeFontSize * 0.85;
