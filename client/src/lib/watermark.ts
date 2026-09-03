@@ -289,7 +289,7 @@ export async function applyWatermark(
   ctx.fillText(watermarkData.time, timeX, timeY);
 
   ctx.strokeStyle = "white"; 
-  ctx.lineWidth = 1 * scaleFactor;
+  ctx.lineWidth = 1.6 * scaleFactor;
   ctx.strokeText(watermarkData.time, timeX, timeY);
 
   const dividerX = timeX + timeWidth + dividerMargin;
