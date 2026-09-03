@@ -367,14 +367,20 @@ export async function applyWatermark(
   const letterSpacing: number = extraSpace / (subText.length - 1);
 
   ctx.fillStyle = "white";
-  ctx.strokeStyle = "white";
-  ctx.lineWidth = 0.2 * scaleFactor;
-
   let currentX: number = brandStartX;
   for (const char of subText) {
     ctx.fillText(char, currentX, brandY + brandFontSize);
-    ctx.strokeText(char, currentX, brandY + brandFontSize); 
+    currentX += ctx.measureText(char).width + letterSpacing;
+  }
 
+  ctx.shadowColor = "transparent";
+
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 0.7 * scaleFactor; 
+
+  currentX = brandStartX;
+  for (const char of subText) {
+    ctx.strokeText(char, currentX, brandY + brandFontSize);
     currentX += ctx.measureText(char).width + letterSpacing;
   }
 
