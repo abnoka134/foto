@@ -376,7 +376,7 @@ export async function applyWatermark(
   ctx.shadowColor = "transparent";
 
   ctx.strokeStyle = "white";
-  ctx.lineWidth = 1 * scaleFactor; 
+  ctx.lineWidth = 1.2 * scaleFactor; 
 
   currentX = brandStartX;
   for (const char of subText) {
