@@ -283,7 +283,7 @@ export async function applyWatermark(
   ctx.fillStyle = "white";
   ctx.fillText(watermarkData.time, timeX, timeY);
   ctx.strokeStyle = "white"; 
-  ctx.lineWidth = 0.8 * scaleFactor;
+  ctx.lineWidth = 1 * scaleFactor;
   ctx.strokeText(watermarkData.time, timeX, timeY);
   ctx.shadowColor = "transparent";
 
@@ -363,7 +363,7 @@ export async function applyWatermark(
 
   ctx.fillStyle = "white";
   ctx.strokeStyle = "white";
-  ctx.lineWidth = 0.15 * scaleFactor;
+  ctx.lineWidth = 0.2 * scaleFactor;
 
   let currentX: number = brandStartX;
   for (const char of subText) {
